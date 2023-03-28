@@ -1,0 +1,30 @@
+<?php
+if(isset($_POST["log_submit"])){
+    require("conn.php");
+    $name=mysqli_real_escape_string($con,$_POST["name"]);
+    $i_password=mysqli_real_escape_string($con,$_POST["password"]);
+    $password=md5($i_password);
+    $cookie=$_POST["cookie_checkbox"];
+    $sql="SELECT * FROM users WHERE name='$name' and password='$password'";
+    $result=mysqli_query($con,$sql);
+        if(mysqli_num_rows($result)>0){
+            session_start();
+            while($row=mysqli_fetch_assoc($result)){
+                $_SESSION["user_id"]=$row["id"];
+                if($cookie=="on"){
+                    setcookie("password","$password",time()+3600);
+                    setcookie("name","$name",time()+3600);
+                }else{
+                    if(isset($_COOKIE["password"]) or isset($_COOKIE["name"])){
+                       setcookie("password","",time()-3600);
+                    setcookie("name","",time()-3600);
+                    }
+                }
+            };
+        }else{
+            session_start();
+        };
+         header("Location:account.php");
+}else{
+     header("Location:account.php");
+}
